@@ -1,0 +1,57 @@
+Summary: NethServer web interface to Hylafax
+Name: nethserver-faxweb2
+Version: @@VERSION@@
+Release: @@RELEASE@@
+License: GPL
+Source: %{name}-%{version}.tar.gz
+BuildArch: noarch
+URL: https://dev.nethesis.it/projects/%{name}
+
+BuildRequires: nethserver-devtools
+
+AutoReq: no
+Requires: ImageMagick
+Requires: nethserver-hylafax, nethserver-httpd
+
+%description
+NethServer web interface to Hylafax.
+
+%prep
+%setup
+
+%post
+
+%preun
+
+%build
+perl createlinks
+
+%install
+rm -rf $RPM_BUILD_ROOT
+mkdir -p root/var/www/html/faxweb/elenco_inviati
+mkdir -p root/var/www/html/faxweb/tmp
+mkdir -p root/var/www/html/faxweb/uploads
+
+(cd root   ; find . -depth -print | cpio -dump $RPM_BUILD_ROOT)
+
+%{genfilelist} \
+    --dir /var/www/html/faxweb/elenco_inviati 'attr(775, apache, apache)' \
+    --dir /var/www/html/faxweb/uploads 'attr(775, apache, apache)' \
+    --dir /var/www/html/faxweb/tmp 'attr(775, apache, apache)' \
+    --file /var/www/html/faxweb/modem_status.pl 'attr(4755, root, apache)' \
+    --file /var/www/html/faxweb/rmfax.pl 'attr(4755, root, apache)' \
+    --file /var/www/html/faxweb/auth.pl 'attr(4755, root, apache)' \
+    --dir /var/spool/hylafax 'attr(0755, uucp, uucp)' \
+    --dir /var/spool/hylafax/etc 'attr(0755, uucp, uucp)' \
+    --dir /var/lib/nethserver/fax/docs/thumb/ 'attr(775, apache, apache)' \
+    --dir /var/lib/nethserver/fax/docs/sentm/ 'attr(775, apache, apache)' \
+    $RPM_BUILD_ROOT > e-smith-%{version}-filelist
+echo "%doc COPYING"          >> e-smith-%{version}-filelist
+
+%clean 
+rm -rf $RPM_BUILD_ROOT
+
+%files -f e-smith-%{version}-filelist
+%defattr(-,root,root)
+
+%changelog

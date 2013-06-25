@@ -1,0 +1,99 @@
+
+$GLOBALS['tablePrefix'] = "faxweb_";
+$GLOBALS['base_ldap'] =  'dc=directory,dc=nh';
+{ 
+  $pbook=${faxweb}{phonebook} || 'none'; 
+  if ($pbook eq 'vtiger') {
+	$db='vtigerdb';
+	$dbuser='vtdbuser';
+	$dbpass='vtdbpass';
+  } elsif ($pbook eq 'horde') {
+	$db='horde';
+	$dbuser='hordepub';
+	$dbpass='hpass';
+  } elsif ($pbook eq 'custom') {
+	$db='phonebook';
+	$dbuser='pbookuser';
+	$dbpass='pbookpass';
+  } else {
+    	$pbook='none';
+  }
+  $OUT="\$GLOBALS['phonebook'] = '$pbook';";
+}
+
+
+$database = mysql_connect('localhost','faxuser','faxpass') or die("Database error check conf.inc.php");
+mysql_select_db('faxdb', $database);
+
+{
+  if ($pbook ne 'none') {
+	"\$dbrubrica=mysql_connect('localhost','$dbuser','$dbpass') or die(\"Database error check conf.inc.php\");\nmysql_select_db('$db', \$dbrubrica);";
+  }
+}
+
+// global variables
+$imageTypes = "/application\/pdf|image\/|application\/postscript|image\/tiff/";
+$dateFormat = "%d-%m-%Y %H:%i ";
+$passwordKey = "d6b3cc24dcf628fe6cd8df159983ea07";
+$ghostScript="/usr/bin/gs";
+$deleted=false;
+
+// paths
+$rootPath    = "/var/lib/nethserver/fax";
+$dochome = "/var/lib/nethserver/fax/docs";
+$defaultFileStore = "/var/lib/nethserver/fax/docs";
+$uploadDir   = "/var/www/html/faxweb";
+
+{
+    use esmith::AccountsDB;
+    my $adb = esmith::AccountsDB->open_ro();
+    my $require_user = '';
+    my $validUsers = $adb->get_prop("faxmanager", "Members") || 'none';
+    my $adminsent=${'faxweb'}{'adminsent'} || '';
+    my $adminrcv=${'faxweb'}{'adminrcv'} || '';    
+
+    $OUT="#Configurazione generata da template\n";
+    @adminsent = split(/,/, $adminsent);
+    @adminrcv  = split(/,/, $adminrcv);
+    $filters = ${'faxweb'}{'filtersent'} || 'true';
+    $filterr = ${'faxweb'}{'filterrcv'} || 'true';
+    $filterd = ${'faxweb'}{'filterdevice'} || 'false';
+    $limit = ${'faxweb'}{'limit'} || '50';
+    $OUT.="\$faxweb['adminsent']=array('admin'";
+    foreach $faxadm (@adminsent)
+    {
+        $OUT.=",'".$faxadm."'";
+    }
+    $OUT.=");\n";
+    $OUT.="\$faxweb['adminrcv']=array('admin'";
+    foreach $faxadm (@adminrcv)
+    {
+        $OUT.=",'".$faxadm."'";
+    }
+    $OUT.=");\n";
+    $OUT.="\$faxweb['filtersent']=$filters;\n";
+    $OUT.="\$faxweb['filterrcv']=$filterr;\n";
+    $OUT.="\$faxweb['filterdevice']=$filterd;\n";
+
+    $validUsers =~ s/,/\",\"/g;
+    $require_user = "array(\"admin\",\"".$validUsers."\")";
+    $OUT.="\$faxweb['faxmanager']=$require_user;\n";
+
+    $OUT.="\$limit=$limit;\n";
+
+    my %properties = db_get_prop($confref, 'faxweb');;
+
+    foreach $property (sort keys %properties)
+    {
+       if ($property  =~ /^tty/) {
+          $deviceUsers = $properties{$property};
+          $deviceUsers =~ s/,/\",\"/g;
+          $device_user = "array(\"admin\",\"".$deviceUsers."\")";
+          $OUT.="\$device[\'$property\']=$device_user;\n";
+       }
+    }
+   
+   $notify = ${'faxweb'}{'notify'} || 'false';
+   $OUT.="\$notify=$notify;\n";
+}
+

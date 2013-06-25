@@ -1,0 +1,32 @@
+#! /bin/sh
+
+function dbquery ()
+{
+     ret=$(mysql -s -u $faxuser -p$faxpass -nB -D $faxdb -e "$1")
+}
+
+faxuser="faxuser"
+faxpass="faxpass"
+faxdb="faxdb"
+
+
+# 1 Sospeso
+# 2 In Attesa di invio all'orario stabilito
+# 3 Problemi di connessione,in attesa di ritrasmissione
+# 4 Numero Occupato
+# 5 Pronto ad essere inviato
+# 6 Invio in corso...
+# 7 Inviato Correttamente
+# 8 Non Inviato
+# 99 Interrotto dall'utente
+if [ "$WHY" != "done" ]; then
+        case $WHY in
+        "failed"|"rejected"|"blocked"|"no_formatter") state=8 ;;
+        "removed"|"killed") state=99 ;;
+        "requeued"|"timedout") state=5 ;;
+        *) state=8 ;;
+        esac
+
+        dbquery "update faxweb_fax set state='$state' where job_id=$jobid"
+fi
+

@@ -1,0 +1,3 @@
+$uploadsFolder = "/var/www/html/faxweb/uploads/";
+    true;
+    

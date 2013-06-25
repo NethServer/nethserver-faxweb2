@@ -1,0 +1,144 @@
+#!/bin/bash
+# logger -t DEBUG $@
+date="$1"; shift # date part
+time="$1"; shift # time part
+ENTRYTYPE="$1"; shift
+
+faxuser="faxuser"
+faxpass="faxpass"
+faxdb="faxdb"
+totdials=`echo $JOBINFO | cut -d'/' -f4`
+DOCHOME=/var/lib/nethserver/fax/docs/
+FAX_RPATH=$DOCHOME"received"
+FAX_SPATH=$DOCHOME"sent"
+
+
+function dbquery ()
+{
+	ret=$(mysql -s -u $faxuser -p$faxpass -nB -D $faxdb -e "$1")
+}
+
+case $ENTRYTYPE in
+"UNSENT")
+    # xferfaxlog format: date UNSENT ‘‘<null>’’ ‘‘<null>’’ jobid
+    jobid=$1; shift;
+	# Failed fax
+	execquery="update faxweb_fax set state='8' WHERE job_id=$jobid;"
+	# logger -t DEBUG $execquery
+;;
+
+"SEND")
+    # xferfaxlog format: date SEND commid modem jobid jobtag sender ‘‘dest-number’’ ‘‘CSI’’ params #pages jobtime conntime ‘‘reason’’ <null> <null>  <null>        ‘‘owner’’ ‘‘dcs’’ jobinfo
+    commid=$1; shift;
+    device=$1; shift
+    jobid=$1; shift
+    shift; shift; shift; shift; 
+    pages=$1; shift;
+    jobtime=$1; shift; shift;
+    if [ $pages -gt 0 ]; then
+        # fax correctly sent
+        state=7
+    else
+        state=8 # not sent
+    fi
+       
+	execquery="update faxweb_fax set state='$state', com_id='$commid', device='$device', pages='$pages', duration='$jobtime', attempts=attempts+1 WHERE job_id=$jobid;"
+	# logger -t DEBUG $execquery
+;;
+
+"RECV")
+    # xferfaxlog format: date  RECV  commid modem qfile <null> fax ‘‘local-number’’ ‘‘TSI’’ params #pages jobtime conntime ‘‘reason’’ ‘‘CIDName’’ ‘‘CIDNum-ber’’ ‘‘callid’’ <null> ‘‘dcs’’ <null>
+    commid=$1; shift;
+    device=$1; shift
+    qfile=$1; shift
+    shift; shift; 
+    tsi=$1; shift; shift; shift; 
+    pages=$1; shift; shift; shift; shift;
+    cidname=$1; shift;
+    cidnumber=$1; shift;
+       
+    fax_type='R'
+	FILENAME=`echo $qfile | cut -d'/' -f2`
+	FILENAME=`echo $FILENAME | cut -d'.' -f1`
+	FILE=/var/spool/hylafax/recvq/$FILENAME.tif
+	INFO=/usr/sbin/faxinfo
+	ERRORSTO=/dev/null
+	SED=/bin/sed
+	AWK=/bin/awk
+	
+	PAGES="`$INFO $FILE | $AWK -F: '/Pages/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	QUALITY="`$INFO $FILE | $AWK -F: '/Quality/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	PAGE="`$INFO $FILE | $AWK -F: '/Page:/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	RECEIVED="`$INFO $FILE | $AWK -F'd:'  '/Received/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	DURATION="`$INFO $FILE | $AWK -F'v:'  '/TimeToRecv/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	RATE="`$INFO $FILE | $AWK -F: '/SignalRate/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	DATA="`$INFO $FILE | $AWK -F: '/DataFormat/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	ERRCORR="`$INFO $FILE | $AWK -F: '/ErrCorrect/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	SENDER="`$INFO $FILE | $AWK -F: '/Sender/ { print $2 }' 2>$ERRORSTO | $SED 's/^.//'`"
+	SENDER="`echo "$SENDER" | sed 's/ //g' `"
+
+	[ "$CIDNUMBER" == "" -o "$CIDNUMBER" == "anonymous" ] && CIDNUMBER="$SENDER"
+
+	execquery="Insert into faxweb_fax set number='$CIDNUMBER', name='$NOME', device='$DEVICE', filename='$FILENAME.tif', data='$DATA', sendto='', msg='', date='$RECEIVED', pages='$PAGES', com_id='$commid', duration='$DURATION', quality='$QUALITY', forward_rcp='', rate='$RATE', errcorr='$ERRCORR', page='$PAGE', fax_type='R', path='$FAX_RPATH', rpath='/received', type='image/tiff', status='found', esito=' ' ;"
+
+    # logger -t DEBUG $execquery
+
+;;
+
+"SUBMIT")
+	fax_type='I'
+    rpath="sent"
+	#format date from 09/25/08 17:31 to 08:09:25 17:31:37
+	year=`echo $date | cut -d' ' -f1  | cut -d'/' -f3`
+	day=`echo $date | cut -d' ' -f1  | cut -d'/' -f2`
+	month=`echo $date |  cut -d' ' -f1  |cut -d'/' -f1`
+	date="$year:$month:$day $time"
+    
+    jobid=$1; shift; shift;
+    number=$1
+
+	#use jobtag field as id_m. id_m must be in the form faxweb|timestamp
+	marker=`grep '^jobtag' /var/spool/hylafax/sendq/q$jobid | cut -d':' -f2 | cut -d'%' -f1`
+        #logger -t DEBUG "jobtag marker = $marker"
+        if [ $marker = "faxweb" ]; then
+		id_m=`grep '^jobtag' /var/spool/hylafax/sendq/q$jobid | cut -d':' -f2 | cut -d'%' -f2` 
+                #logger -t DEBUG "Found faxweb marker: mutltiple fax with $id_m"
+		if [ ! -z "$id_m" ]; then
+	 		rpath="sentm/$id_m"
+		fi
+        fi
+
+    # search for file position and type
+    FAX_SPATH="$DOCHOME$rpath"
+    File=''
+    File=`grep '^[!]*pdf' /var/spool/hylafax/sendq/q$jobid | cut -d ':' -f4`
+    extension=pdf
+    if [ -z $File ]; then
+        File=`grep '^[!]*tiff' /var/spool/hylafax/sendq/q$jobid | cut -d ':' -f4`
+        extension=tif
+    fi
+    if [ -z $File ]; then
+        File=`grep '^[!]*postscript' /var/spool/hylafax/sendq/q$jobid | cut -d ':' -f4`
+        extension=ps
+    fi
+    File_dest="$jobid.$extension"
+    /bin/mkdir -p $DOCHOME$rpath
+    /bin/ln -s $DOCHOME/sent/$jobid.$extension $DOCHOME$rpath/$File_dest
+    file_type=`file -bi $DOCHOME$rpath/$File_dest`
+	# === Saving record === #
+
+	# Campi inutilizzati tts, ktime, rtime
+	execquery="Insert delayed into faxweb_fax set number='$number', filename='$File_dest', doc_id=$jobid, date='$date',  job_id='$jobid', attempts='0',  tipo='H', fax_type='$fax_type', path='$FAX_SPATH', rpath='/$rpath', type='$file_type', id_m='$id_m', state=''  ;"
+	
+    # logger -t DEBUG $execquery
+	
+;;
+
+*)
+    # logger -t FaxAccounting  "Unkown entry type: $ENTRYTYPE"
+	exit 0
+;;
+
+esac
+
+dbquery "$execquery"
