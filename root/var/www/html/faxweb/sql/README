@@ -1,0 +1,3 @@
+When migrating from from NethService to NethServer, execute:
+
+mysql faxdb -e "update faxweb_fax set path = replace(path, '/home/e-smith/', '/var/lib/nethserver');
