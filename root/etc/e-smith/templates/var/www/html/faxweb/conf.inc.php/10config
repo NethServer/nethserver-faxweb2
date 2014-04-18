@@ -48,7 +48,7 @@ $uploadDir   = "/var/www/html/faxweb";
     use esmith::AccountsDB;
     my $adb = esmith::AccountsDB->open_ro();
     my $require_user = '';
-    my $validUsers = $adb->get_prop("faxmanager", "Members") || 'none';
+    my $validUsers = $adb->get_prop("faxmaster", "Members") || 'none';
     my $adminsent=${'faxweb'}{'adminsent'} || '';
     my $adminrcv=${'faxweb'}{'adminrcv'} || '';    
 

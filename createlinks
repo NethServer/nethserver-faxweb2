@@ -38,4 +38,13 @@ safe_symlink("/etc/e-smith/templates-default/template-end-php",
 templates2events("/var/www/html/faxweb/conf.inc.php",  $event);
 
 
+#--------------------------------------------------
+# actions for group-modify event
+#--------------------------------------------------
+
+my $event = "group-modify";
+
+templates2events("/var/www/html/faxweb/conf.inc.php",  $event);
+
+
 exit;

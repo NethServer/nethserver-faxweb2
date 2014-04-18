@@ -10,8 +10,8 @@ URL: https://dev.nethesis.it/projects/%{name}
 BuildRequires: nethserver-devtools
 
 AutoReq: no
-Requires: ImageMagick
-Requires: nethserver-hylafax, nethserver-httpd
+Requires: ImageMagick, php-mysql
+Requires: nethserver-hylafax, nethserver-httpd, nethserver-mysql
 
 %description
 NethServer web interface to Hylafax.
@@ -31,6 +31,8 @@ rm -rf $RPM_BUILD_ROOT
 mkdir -p root/var/www/html/faxweb/elenco_inviati
 mkdir -p root/var/www/html/faxweb/tmp
 mkdir -p root/var/www/html/faxweb/uploads
+mkdir -p root/var/lib/nethserver/fax/docs/thumb
+mkdir -p root/var/lib/nethserver/fax/docs/sentm
 
 (cd root   ; find . -depth -print | cpio -dump $RPM_BUILD_ROOT)
 
