@@ -45,8 +45,8 @@ mkdir -p root/var/lib/nethserver/fax/docs/sentm
     --file /var/www/html/faxweb/auth.pl 'attr(4755, root, apache)' \
     --dir /var/spool/hylafax 'attr(0755, uucp, uucp)' \
     --dir /var/spool/hylafax/etc 'attr(0755, uucp, uucp)' \
-    --dir /var/lib/nethserver/fax/docs/thumb/ 'attr(775, apache, apache)' \
-    --dir /var/lib/nethserver/fax/docs/sentm/ 'attr(775, apache, apache)' \
+    --dir /var/lib/nethserver/fax/docs/thumb 'attr(775, apache, apache)' \
+    --dir /var/lib/nethserver/fax/docs/sentm 'attr(775, apache, apache)' \
     $RPM_BUILD_ROOT > e-smith-%{version}-filelist
 echo "%doc COPYING"          >> e-smith-%{version}-filelist
 
