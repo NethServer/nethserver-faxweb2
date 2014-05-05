@@ -57,6 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Mon May 05 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.0.3-1.ns6
+- Fix fax preview - Bug #2721 
+- Add dashboard widget - Enhancement #2709
+
 * Tue Mar 25 2014 Davide Principi <davide.principi@nethesis.it> - 1.0.2-1.ns6
 - Fixed DB defaults: changed type to "configuration"
 
