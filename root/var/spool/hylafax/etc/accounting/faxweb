@@ -1,8 +1,18 @@
 #!/bin/bash
 # logger -t DEBUG $@
-date="$1"; shift # date part
-time="$1"; shift # time part
-ENTRYTYPE="$1"; shift
+date=`echo "$1" | awk '{print $1}'`
+time=`echo "$1" | awk '{print $2}'`
+ENTRYTYPE="$2"
+commid=$3
+device=$4
+jobid=$5
+pages=${11}
+jobtime=${12}
+qfile=$5
+tsi=$9
+cidname=${15}
+cidnumber=${16}
+number=$8
 
 faxuser="faxuser"
 faxpass="faxpass"
@@ -20,21 +30,13 @@ function dbquery ()
 
 case $ENTRYTYPE in
 "UNSENT")
-    # xferfaxlog format: date UNSENT ‘‘<null>’’ ‘‘<null>’’ jobid
-    jobid=$1; shift;
-	# Failed fax
-	execquery="update faxweb_fax set state='8' WHERE job_id=$jobid;"
-	# logger -t DEBUG $execquery
+    # Failed fax
+    execquery="update faxweb_fax set state='8' WHERE job_id=$jobid;"
+    # logger -t DEBUG $execquery
 ;;
 
 "SEND")
     # xferfaxlog format: date SEND commid modem jobid jobtag sender ‘‘dest-number’’ ‘‘CSI’’ params #pages jobtime conntime ‘‘reason’’ <null> <null>  <null>        ‘‘owner’’ ‘‘dcs’’ jobinfo
-    commid=$1; shift;
-    device=$1; shift
-    jobid=$1; shift
-    shift; shift; shift; shift; 
-    pages=$1; shift;
-    jobtime=$1; shift; shift;
     if [ $pages -gt 0 ]; then
         # fax correctly sent
         state=7
@@ -48,15 +50,6 @@ case $ENTRYTYPE in
 
 "RECV")
     # xferfaxlog format: date  RECV  commid modem qfile <null> fax ‘‘local-number’’ ‘‘TSI’’ params #pages jobtime conntime ‘‘reason’’ ‘‘CIDName’’ ‘‘CIDNum-ber’’ ‘‘callid’’ <null> ‘‘dcs’’ <null>
-    commid=$1; shift;
-    device=$1; shift
-    qfile=$1; shift
-    shift; shift; 
-    tsi=$1; shift; shift; shift; 
-    pages=$1; shift; shift; shift; shift;
-    cidname=$1; shift;
-    cidnumber=$1; shift;
-       
     fax_type='R'
 	FILENAME=`echo $qfile | cut -d'/' -f2`
 	FILENAME=`echo $FILENAME | cut -d'.' -f1`
@@ -87,15 +80,12 @@ case $ENTRYTYPE in
 
 "SUBMIT")
 	fax_type='I'
-    rpath="sent"
+	rpath="sent"
 	#format date from 09/25/08 17:31 to 08:09:25 17:31:37
 	year=`echo $date | cut -d' ' -f1  | cut -d'/' -f3`
 	day=`echo $date | cut -d' ' -f1  | cut -d'/' -f2`
 	month=`echo $date |  cut -d' ' -f1  |cut -d'/' -f1`
 	date="$year:$month:$day $time"
-    
-    jobid=$1; shift; shift;
-    number=$1
 
 	#use jobtag field as id_m. id_m must be in the form faxweb|timestamp
 	marker=`grep '^jobtag' /var/spool/hylafax/sendq/q$jobid | cut -d':' -f2 | cut -d'%' -f1`

@@ -1,5 +1,8 @@
 #! /bin/sh
 
+jobid=$1
+WHY=$2
+
 function dbquery ()
 {
      ret=$(mysql -s -u $faxuser -p$faxpass -nB -D $faxdb -e "$1")
