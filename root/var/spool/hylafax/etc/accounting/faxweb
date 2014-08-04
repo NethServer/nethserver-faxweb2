@@ -13,6 +13,7 @@ tsi=$9
 cidname=${15}
 cidnumber=${16}
 number=$8
+owner=${18}
 
 faxuser="faxuser"
 faxpass="faxpass"
@@ -118,7 +119,7 @@ case $ENTRYTYPE in
 	# === Saving record === #
 
 	# Campi inutilizzati tts, ktime, rtime
-	execquery="Insert delayed into faxweb_fax set number='$number', filename='$File_dest', doc_id=$jobid, date='$date',  job_id='$jobid', attempts='0',  tipo='H', fax_type='$fax_type', path='$FAX_SPATH', rpath='/$rpath', type='$file_type', id_m='$id_m', state=''  ;"
+	execquery="Insert delayed into faxweb_fax set number='$number', filename='$File_dest', doc_id=$jobid, date='$date', job_id='$jobid', attempts='0', tipo='H', fax_type='$fax_type', path='$FAX_SPATH', rpath='/$rpath', type='$file_type', id_m='$id_m', state='', status='found', user='$owner' ;"
 	
     # logger -t DEBUG $execquery
 	
