@@ -57,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Mon Aug 04 2014 Davide Principi <davide.principi@nethesis.it> - 1.0.5-1.ns6
+- faxweb: non-admin users unable to see their faxes - Bug #2830 [NethServer]
+
 * Thu Jul 31 2014 Giacomo Sanchietti <giacomo.sanchietti@nethesis.it> - 1.0.4-1.ns6
 - Fix accounting and notify - Bug #2746
 
