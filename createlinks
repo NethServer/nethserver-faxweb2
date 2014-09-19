@@ -46,5 +46,11 @@ my $event = "group-modify";
 
 templates2events("/var/www/html/faxweb/conf.inc.php",  $event);
 
+#--------------------------------------------------
+# actions for migration-import event
+#--------------------------------------------------
+
+my $event = "migration-import";
+event_actions($event, 'nethserver-faxweb-migrate' => 40);
 
 exit;
