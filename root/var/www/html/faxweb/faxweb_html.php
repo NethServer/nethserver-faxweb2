@@ -186,19 +186,19 @@ div#dashboard {
  <table class="headform">
  <form name="forward">
   <tr> <td class="button3">&nbsp;<span class="title">Inoltra a ... </span><img src="images/Close.gif" title="Chiudi" class="chiudi5" onclick="ClosePopup();">
-  <br> &nbsp;<span class="mostra">Mostra:</span>&nbsp;&nbsp;&nbsp; 
-     <select name="CambiaMostra" id="CambiaMostra" size="1" class="mostra" onChange="Change(this);">
+  <br> &nbsp;<span class="mostra" style='display:none'>Mostra:</span>&nbsp;&nbsp;&nbsp; 
+     <select name="CambiaMostra" id="CambiaMostra" size="1" class="mostra" onChange="Change(this);" style='display:none'>
         <option value="all">Tutto</option>
         <option value="user">Utenti</option>
         <option value="group">Gruppi</option>
         </select>
     </td>
   </tr>
-  <tr> <td><select name="InoltraElenco" id="InoltraElenco" size="12" multiple="multiple" class="mail" onChange="Numbers();"></select></td></tr>
-  <tr> <td>Altro:&nbsp;&nbsp;<input class="testo" type="text" name="address" maxlength="70"></td></tr>
+  <tr style='display:none'> <td><select type='hidden' name="InoltraElenco" id="InoltraElenco" size="12" multiple="multiple" class="mail" onChange="Numbers();"></select></td></tr>
+  <tr> <td>Mail:&nbsp;&nbsp;<input class="testo" type="text" name="address" maxlength="70"></td></tr>
   <tr> <td>Note d'inoltro:&nbsp;&nbsp;</td></tr>
   <tr> <td><textarea name="notes" id="notes" rows="3" cols="35"></textarea></td></tr>
-  <tr> <td class="button3" >&nbsp;<span class="title3">Selezionati:</span><span id="numero" name="numero" class="numero">&nbsp;&nbsp;</span><img src="images/email2.png" class="invia" title="Invia" onclick="send_mail(this);"></td></tr>
+  <tr> <td class="button3" >&nbsp;<span class="title3"  style='display:none'>Selezionati:</span><span  style='display:none' id="numero" name="numero" class="numero">&nbsp;&nbsp;</span><img src="images/email2.png" class="invia" title="Invia" onclick="send_mail(this);"></td></tr>
  </form>
  </table>
 </div>

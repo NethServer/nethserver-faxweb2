@@ -607,33 +607,7 @@ function sendMail ($id,$mail,$note) {
 	}
 }
 function getForward ($type) {
-	$output = '';
-	jsonStart();
-	$ldapusers = array();
-
-
-	$ds=ldap_connect("localhost");
-	$r=ldap_bind($ds);
-	$sr=ldap_search($ds, $GLOBALS[base_ldap], "cn=*");
-	$info = ldap_get_entries($ds, $sr);
-	for ($i=0; $i<$info["count"]; $i++) {
-					       $user=$info[$i]['cn'][0];
-					       $mail=$info[$i]['mail'][0];
-					       $oclass=$info[$i]['objectclass'][0];
-					       if ($oclass=='posixGroup') $user = " Grp: ".$user;
-					       if ($type == 'user' && $oclass!='posixGroup') array_push($ldapusers,array("$user","$mail"));
-					       elseif ($type == 'group' && $oclass=='posixGroup') array_push($ldapusers,array("$user","$mail"));
-					       elseif ($type == 'all') array_push($ldapusers,array("$user","$mail"));
-					     }
-	ldap_close($ds);
-	sort($ldapusers);
-	foreach ($ldapusers as $ldapuser) { 
-                                             $ldapuser0_esc= escape($ldapuser[0]);
-                                             $ldapuser1_esc= escape($ldapuser[1]);
-					     $output .=  jsonAdd("\"name\":\"$ldapuser0_esc\",\"address\":\"$ldapuser1_esc\"");
-	   	 			  }
-	$output .=  jsonReturn('getForward');
-	echo $output;    
+	echo '';
 }
 function search($terms,$path){
 	global $database,$dateFormat,$fileinfo,$limit;

@@ -1,6 +1,5 @@
 
 $GLOBALS['tablePrefix'] = "faxweb_";
-$GLOBALS['base_ldap'] =  'dc=directory,dc=nh';
 { 
   $pbook=${faxweb}{phonebook} || 'none'; 
   if ($pbook eq 'vtiger') {
