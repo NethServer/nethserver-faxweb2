@@ -20,7 +20,7 @@ class NethServiceAuth
     {
 
         $this->_logged_in = false;
-        system("/var/www/html/faxweb/auth.pl $username $password", $ret);
+        system("/var/www/html/faxweb/auth.pl '$username' '$password'", $ret);
         if ($ret === 0) $this->_logged_in = true;
     }
 
