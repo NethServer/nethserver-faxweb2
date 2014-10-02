@@ -57,6 +57,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Thu Oct 02 2014 Davide Principi <davide.principi@nethesis.it> - 1.1.0-1.ns6
+- faxweb: admins cannot see user list into "Inoltra a" window - Bug #2834 [NethServer]
+- faxweb: unable to authenticate if password contains $ - Bug #2829 [NethServer]
+- Faxweb: implement migration - Enhancement #2789 [NethServer]
+
 * Mon Aug 04 2014 Davide Principi <davide.principi@nethesis.it> - 1.0.5-1.ns6
 - faxweb: non-admin users unable to see their faxes - Bug #2830 [NethServer]
 
