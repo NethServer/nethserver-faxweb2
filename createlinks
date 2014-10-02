@@ -51,6 +51,6 @@ templates2events("/var/www/html/faxweb/conf.inc.php",  $event);
 #--------------------------------------------------
 
 my $event = "migration-import";
-event_actions($event, 'nethserver-faxweb2-migrate' => 40);
+event_actions($event, 'nethserver-faxweb2-migrate' => 60);
 
 exit;
