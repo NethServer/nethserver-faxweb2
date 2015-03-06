@@ -1,7 +1,7 @@
 Summary: NethServer web interface to Hylafax
 Name: nethserver-faxweb2
 Version: 1.1.0
-Release: 1
+Release: 1%{dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
