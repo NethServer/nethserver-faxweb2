@@ -73,7 +73,7 @@ case $ENTRYTYPE in
 
 	[ "$CIDNUMBER" == "" -o "$CIDNUMBER" == "anonymous" ] && CIDNUMBER="$SENDER"
 
-	execquery="Insert into faxweb_fax set number='$CIDNUMBER', name='$NOME', device='$DEVICE', filename='$FILENAME.tif', data='$DATA', sendto='', msg='', date='$RECEIVED', pages='$PAGES', com_id='$commid', duration='$DURATION', quality='$QUALITY', forward_rcp='', rate='$RATE', errcorr='$ERRCORR', page='$PAGE', fax_type='R', path='$FAX_RPATH', rpath='/received', type='image/tiff', status='found', esito=' ' ;"
+	execquery="Insert into faxweb_fax set number='$CIDNUMBER', name='$NOME', device='$device', filename='$FILENAME.tif', data='$DATA', sendto='', msg='', date='$RECEIVED', pages='$PAGES', com_id='$commid', duration='$DURATION', quality='$QUALITY', forward_rcp='', rate='$RATE', errcorr='$ERRCORR', page='$PAGE', fax_type='R', path='$FAX_RPATH', rpath='/received', type='image/tiff', status='found', esito=' ' ;"
 
     # logger -t DEBUG $execquery
 
