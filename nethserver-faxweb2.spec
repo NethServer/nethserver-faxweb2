@@ -1,7 +1,7 @@
 Summary: NethServer web interface to Hylafax
 Name: nethserver-faxweb2
-Version: 1.1.0
-Release: 1%{dist}
+Version: 1.1.1
+Release: 1%{?dist}
 License: GPL
 Source: %{name}-%{version}.tar.gz
 BuildArch: noarch
@@ -57,6 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
+* Thu Mar 12 2015 Stefano Fancello <stefano.fancello@nethesis.it> - 1.1.1-1.ns6
+- fix #3080 [NethServer]: if "filter by device" is enabled, no faxes are displayed on interface 
+- spec: move from spec.in to spec. Refs #3009
+
 * Thu Oct 02 2014 Davide Principi <davide.principi@nethesis.it> - 1.1.0-1.ns6
 - faxweb: admins cannot see user list into "Inoltra a" window - Bug #2834 [NethServer]
 - faxweb: unable to authenticate if password contains $ - Bug #2829 [NethServer]
